@@ -2,9 +2,79 @@
 <html>
 <head>
     <title>Effective JavaScript: Frogger</title>
+    <link href="http://fonts.googleapis.com/css?family=Lato:400" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4 col-sm-12">
+                <h1>Can you reach the next rive ?</h1>
+                <p>
+                    Be aware of the creepy bugs on the road.
+                    Clear as many levels as you can.
+                </p>
+                <h2>Controls</h2>
+                <ul class="controls">
+                    <li><span class="control up">&#8593</span> Move the player up.</li>
+                    <li><span class="control down">&#8595</span> Move the player down.</li>
+                    <li><span class="control right">&#8594</span> Move the player to the right.</li>
+                    <li><span class="control left">&#8592</span> Move the player to the left.</li>
+                    <li><span class="control alpha">h</span> Redeem 1 life against an item.</li>
+                </ul>
+                <h2>Items</h2>
+                <ul>
+                    <li>
+                        <img src="images/heart-item.png" alt="Heart item">
+                        Gives you one more life.
+                    </li>
+                    <li>
+                        <img src="images/star-item.png" alt="Star item">
+                        Makes you indestructible for 1 second.
+                    </li>
+                    <li>
+                        <img src="images/key-item.png" alt="Key item">
+                        Unlocks immediately the next level.
+                    </li>
+                    <li>
+                        <img src="images/rock-item.png" alt="Rock item">
+                        Turns water in stone for 1 second.
+                    </li>
+                    <li>
+                        <img src="images/gem-blue-item.png" alt="Green gem item">
+                        Slows down the bugs for 1 second.
+                    </li>
+                    <li>
+                        <img src="images/gem-green-item.png" alt="Blue gem item">
+                        Freezes the bugs for 1 second.
+                    </li>
+                </ul>
+            </div>
+            <div class="col-md-8 col-sm-12">
+                <div class="hub">
+                    <h3>LIVES </h3>
+                    <span class="lives"></span>
+                    <h3>LEVEL </h3>
+                    <span class="level">1</span>
+                </div>
+                <div id="game-area"></div>
+                <div id="game-over" class="game-message">
+                    <h2>Game Over :(</h2>
+                    <hr>
+                    <p>Seems like you don't have any remaining life.</p>
+                    <button id="restart" type="button" class="btn-lg btn-primary">Restart</button>
+                </div>
+                <div id="congratulations" class="game-message">
+                    <h2>Congratulations :)</h2>
+                    <hr>
+                    <p>Great! You have cleared all levels.</p>
+                    <button id="play" type="button" class="btn-lg btn-primary">Play again</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="js/jquery-1.11.1.min.js"></script>
     <script src="js/resources.js"></script>
     <script src="js/app.js"></script>
     <script src="js/engine.js"></script>
