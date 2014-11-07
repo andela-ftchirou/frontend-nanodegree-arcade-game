@@ -97,6 +97,7 @@ var Engine = (function(global) {
     }
 
     function renderCharacterSelector() {
+        $('#hub').css('visibility', 'hidden');
         $('#char-selector-header').css('display', 'block');
 
         var selectorImage = 'images/selector.png';
@@ -196,6 +197,7 @@ var Engine = (function(global) {
             game.player.sprite = character.sprite;
 
             $('#char-selector-header').css('display', 'none');
+            $('#hub').css('visibility', 'visible');
 
             game.selectCharacter = false;
         });
