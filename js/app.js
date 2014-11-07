@@ -448,6 +448,7 @@ Player.prototype.handleInput = function (key) {
             }
             break;
         case 'quit':
+            this.game.paused = false;
             this.game.characterSelector.hasFocus = true;
             this.game.restart();
         default:
