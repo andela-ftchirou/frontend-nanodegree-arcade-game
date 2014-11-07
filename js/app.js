@@ -6,7 +6,7 @@ var Game = function () {
     this.lives = this.maxLives;
     this.board = null;
     this.characterSelector = new CharacterSelector();
-    this.selectCharacter = true;
+    this.characterSelector.hasFocus = true;
 
     this.initializeLevels();
 
@@ -29,7 +29,7 @@ var Game = function () {
             13: 'enter'
         };
 
-        if (that.selectCharacter) {
+        if (that.characterSelector.hasFocus) {
             that.characterSelector.handleInput(allowedKeys[e.keyCode]);
         } else {
             that.player.handleInput(allowedKeys[e.keyCode]);
@@ -56,8 +56,7 @@ Game.prototype.levelUp = function () {
         this.lives = this.maxLives;
         this.lifeGainedCallback(this.lives);
 
-        this.player.x = this.randomInt(0, this.board.width - 1);
-        this.player.y = this.board.height - 1;
+        this.spawnPlayer();
 
         this.enemies = [];
         this.numEnemies = this.board.roads.length;
@@ -80,7 +79,7 @@ Game.prototype.wasPlayerHit = function () {
     for (var i = 0; i < this.numEnemies; ++i) {
         var enemy = this.enemies[i];
 
-        if (this.closeEnough(this.player.x, enemy.x) && this.closeEnough(this.player.y, enemy.y)){
+        if (this.closeEnough(this.player.x, enemy.x) && this.player.y === enemy.y) {
             return true;
         }
     }
@@ -99,8 +98,7 @@ Game.prototype.reset = function () {
         this.gameOverCallback(this);
     } else {
         this.lifeLostCallback(this.lives);
-        this.player.x = this.randomInt(0, this.board.width - 1);
-        this.player.y = this.board.height - 1;
+        this.spawnPlayer();
     }
 };
 
@@ -110,6 +108,11 @@ Game.prototype.restart = function () {
     this.maxEnemySpeed = 5;
     this.gameRestartCallback(this);
     this.levelUp();
+};
+
+Game.prototype.spawnPlayer = function () {
+    this.player.x = this.randomInt(0, this.board.width - 1);
+    this.player.y = this.board.height - 1;
 };
 
 Game.prototype.helpPlayer = function () {
@@ -328,7 +331,10 @@ Board.prototype.getItem = function (row, col) {
 
 Board.prototype.setItem = function (row, col, newItem) {
     if (this.items === undefined) {
-        return;
+        this.items = '';
+        for (var i = 0; i < this.blocks.length; ++i) {
+            this.items += 'n';
+        }
     }
 
     var index = row * this.width + col;
@@ -362,7 +368,7 @@ var Enemy = function(game, x, y, speed) {
 Enemy.prototype = Object.create(Character.prototype);
 Enemy.prototype.constructor = Enemy;
 
-Enemy.prototype.update = function(dt) {
+Enemy.prototype.update = function (dt) {
     this.x += this.speed * dt;
 
     if (this.x >= this.game.board.width) {
@@ -387,8 +393,6 @@ Player.prototype.constructor = Player;
 Player.prototype.update = function () {
     if (this.game.isLevelCleared()) {
         this.game.levelUp();
-
-        return;
     }
 };
 
@@ -397,7 +401,6 @@ Player.prototype.onGain = function (item, callback) {
 };
 
 Player.prototype.handleInput = function (key) {
-
     switch (key) {
         case 'left':
             if (this.x > 0) {
@@ -445,6 +448,7 @@ Player.prototype.moveTo = function (x, y) {
 CharacterSelector = function () {
     this.characters = null;
     this.position = 0;
+    this.hasFocus = false;
     this.characterSelectedCallback = function (character) { };
 };
 

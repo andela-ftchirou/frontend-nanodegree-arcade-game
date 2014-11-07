@@ -50,7 +50,7 @@ var Engine = (function(global) {
     }
 
     function render() {
-        if (game.selectCharacter) {
+        if (game.characterSelector.hasFocus) {
             renderCharacterSelector();
         } else {
             renderGame();
@@ -160,7 +160,8 @@ var Engine = (function(global) {
 
         game.onGameRestart(function (game) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            game.selectCharacter = true;
+
+            game.characterSelector.hasFocus = true;
         });
 
         game.onGameCompleted(function (game) {
@@ -199,7 +200,7 @@ var Engine = (function(global) {
             $('#char-selector-header').css('display', 'none');
             $('#hub').css('visibility', 'visible');
 
-            game.selectCharacter = false;
+            game.characterSelector.hasFocus = false;
         });
     }
 
