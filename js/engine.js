@@ -132,7 +132,6 @@ var Engine = (function(global) {
         initializeCharacterSelector(game);
 
         game.onLifeLost(function (lives) {
-            // ctx.clearRect(0, 0, canvas.width, canvas.height); 
             $('.lives').text(lives);
         });
 
