@@ -29,7 +29,7 @@ var Game = function () {
             72: 'help',
             13: 'enter',
             80: 'pause',
-            81: 'stop'
+            81: 'quit'
         };
 
         if (that.characterSelector.hasFocus) {
@@ -447,6 +447,9 @@ Player.prototype.handleInput = function (key) {
                 this.game.gameResumedCallback(this.game);
             }
             break;
+        case 'quit':
+            this.game.characterSelector.hasFocus = true;
+            this.game.restart();
         default:
             break;
     }
@@ -457,7 +460,7 @@ Player.prototype.moveTo = function (x, y) {
     if (this.game.paused) {
         return;
     }
-    
+
     this.x = x;
     this.y = y;
 
