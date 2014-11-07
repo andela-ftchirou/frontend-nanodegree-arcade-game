@@ -122,6 +122,7 @@ Game.prototype.reset = function () {
         this.gameOverCallback(this);
     } else {
         this.lifeLostCallback(this.lives);
+        this.board.resetItems();
         this.spawnPlayer();
     }
 };
@@ -373,7 +374,7 @@ var Item = {
 
 // Board class represents the board on which the game is played.
 // Its constructor takes in parameter a string formatted as:
-//   cols:rows:roads:blocks:items (see comments at line 169)
+//   cols:rows:roads:blocks:items (see comments at line 171)
 // representing a level. The string is parsed
 // and used to initialize the properties of the board:
 //    width: the width of the board.
@@ -397,6 +398,7 @@ var Board = function (level) {
 
     if (data.length > 4) {
         this.items = data[4];
+        this.initialItems = this.items;
     }
 };
 
@@ -431,6 +433,9 @@ Board.prototype.removeItem = function (row, col) {
     this.setItem(row, col, Item.None);
 };
 
+Board.prototype.resetItems = function () {
+    this.items = this.initialItems;
+};
 
 // Any character in the game. 
 // It is positioned at col y and row x on the board.
