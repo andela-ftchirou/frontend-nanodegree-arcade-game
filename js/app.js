@@ -172,7 +172,7 @@ Game.prototype.helpPlayer = function () {
 // where
 //   cols   = an integer, the number of columns of the board.
 //   rows   = an integer, the number of rows of the board.
-//   roads  = a list of comma-separated integers, each integer is a row index on which enemies should be spawned.
+//   roads  = a list of comma-separated integers, each integer is a 0-based row index on which enemies should be spawned.
 //   blocks = a string of length cols x rows of characters G (for grass), W (for water) and S (for stone), the map of the board.
 //   items  = a string of length cols x rows of characters n (for none), r (for rock), b (for blue gem), g (for green gem), ...
 //            the map of the initial items to be placed on the board. If initially, there are no items
@@ -372,7 +372,7 @@ var Item = {
 
 // Board class represents the board on which the game is played.
 // Its constructor takes in parameter a string formatted as:
-//   cols:rows:roads:blocks:items (see comments at line 167)
+//   cols:rows:roads:blocks:items (see comments at line 169)
 // representing a level. The string is parsed
 // and used to initialize the properties of the board:
 //    width: the width of the board.
