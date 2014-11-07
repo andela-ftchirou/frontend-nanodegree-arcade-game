@@ -203,6 +203,10 @@ Game.prototype.initializePlayer = function () {
     });
 
     this.player.onGain(Item.Star, function (game) {
+        if (game.player.indestructible) {
+            return;
+        }
+        
         game.player.indestructible = true;
 
         var sprite = game.player.sprite;
