@@ -50,6 +50,14 @@ ul {
     padding-left: 20px;
 }
 
+#char-selector-header {
+    display: none;
+    text-align: center;
+    font-size: 40px;
+    margin-top: 40px;
+    padding: 30px;
+}
+
 .game-message {
     display: none;
     text-align: center;

@@ -50,6 +50,14 @@ var Engine = (function(global) {
     }
 
     function render() {
+        if (game.selectCharacter) {
+            renderCharacterSelector();
+        } else {
+            renderGame();
+        }
+    }
+
+    function renderGame() {
         var Images = { };
 
         Images[Block.Water] = 'images/water-block.png';
@@ -88,6 +96,24 @@ var Engine = (function(global) {
         game.player.render();
     }
 
+    function renderCharacterSelector() {
+        $('#char-selector-header').css('display', 'block');
+
+        var selectorImage = 'images/selector.png';
+
+        var characters = game.characterSelector.characters;
+
+        canvas.width = characters.length * 101;
+        canvas.height = 171;
+
+        for (var i = 0; i < characters.length; ++i) {
+            var r = Resources.get(characters[i].sprite);
+            ctx.drawImage(Resources.get(characters[i].sprite), i * 101, 0);
+        }
+
+        ctx.drawImage(Resources.get(selectorImage), game.characterSelector.position * 101, 0);
+    }
+
     function checkCollisions() {
         if (game.wasPlayerHit() || game.isPlayerDrowning()) {
             game.reset();
@@ -99,6 +125,8 @@ var Engine = (function(global) {
     }
 
     function initializeGame(game) {
+        initializeCharacterSelector();
+
         game.onLifeLost(function (lives) { 
             $('.lives').text(lives); 
         });
@@ -108,10 +136,7 @@ var Engine = (function(global) {
         });
 
         game.onLevelCleared(function (nextLevel) { 
-            canvas.width = game.board.width * 101;
-            canvas.height = game.board.height * 101 + 101;
-
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            clearCanvas();
 
             $('.level').text(nextLevel + 1); 
         });
@@ -134,6 +159,7 @@ var Engine = (function(global) {
 
         game.onGameRestart(function (game) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            game.selectCharacter = true;
         });
 
         game.onGameCompleted(function (game) {
@@ -152,6 +178,36 @@ var Engine = (function(global) {
             })
         });
     }
+
+    function initializeCharacterSelector() {
+        var characters = [
+            {name: 'boy', sprite: 'images/char-boy.png'},
+            {name: 'cat-girl', sprite: 'images/char-cat-girl.png'},
+            {name: 'horn-girl', sprite: 'images/char-horn-girl.png'},
+            {name: 'pink-girl', sprite: 'images/char-pink-girl.png'},
+            {name: 'princess-girl', sprite: 'images/char-princess-girl.png'}
+        ];
+
+        game.characterSelector.characters = characters;
+
+        game.characterSelector.onCharacterSelected(function (character) {
+            clearCanvas();
+
+            game.player.sprite = character.sprite;
+
+            $('#char-selector-header').css('display', 'none');
+
+            game.selectCharacter = false;
+        });
+    }
+
+    function clearCanvas() {
+        canvas.width = game.board.width * 101;
+        canvas.height = game.board.height * 101 + 101;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
     Resources.load([
         'images/stone-block.png',
         'images/water-block.png',
@@ -164,8 +220,20 @@ var Engine = (function(global) {
         'images/heart.png',
         'images/star.png',
         'images/key.png',
-        'images/rock.png'
+        'images/rock.png',
+        'images/char-boy.png',
+        'images/char-boy-star.png',
+        'images/char-cat-girl.png',
+        'images/char-cat-girl-star.png',
+        'images/char-horn-girl.png',
+        'images/char-horn-girl-star.png',
+        'images/char-pink-girl.png',
+        'images/char-pink-girl-star.png',
+        'images/char-princess-girl.png',
+        'images/char-princess-girl-star.png',
+        'images/selector.png'
     ]);
+
     Resources.onReady(init);
 
     global.ctx = ctx;

@@ -5,6 +5,8 @@ var Game = function () {
     this.maxLives = 3;
     this.lives = this.maxLives;
     this.board = null;
+    this.characterSelector = new CharacterSelector();
+    this.selectCharacter = true;
 
     this.initializeLevels();
 
@@ -17,16 +19,21 @@ var Game = function () {
     this.levelUp();
 
     var that = this;
-    document.addEventListener('keyup', function(e) {
+    document.addEventListener('keyup', function (e) {
         var allowedKeys = {
             37: 'left',
             38: 'up',
             39: 'right',
             40: 'down',
-            72: 'help'
+            72: 'help',
+            13: 'enter'
         };
 
-        that.player.handleInput(allowedKeys[e.keyCode]);
+        if (that.selectCharacter) {
+            that.characterSelector.handleInput(allowedKeys[e.keyCode]);
+        } else {
+            that.player.handleInput(allowedKeys[e.keyCode]);
+        }
     });
 };
 
@@ -133,7 +140,7 @@ Game.prototype.initializeLevels = function () {
         '6:6:1,4:GGGGGGSSSSSSWWWWWWWWWWWWSSSSSSGGGGGG:nnnnnnnnnnnnnnnnnnnnnnnnnnnnrnnnnnnn',
         '5:6:2,3,4:GGGGGWWSWWSSSSSSSSSSSSSSSGGGGG:nnnnnnnnnnnnnnnnbnnnnnnnnnnnnn',
         '5:6:1,3,4:GGGGGSSSSSSSWSSSSSSSSSSSSGGGGG:nnnnnnnnnnngnbnnnnnnnnnnnnnnnn',
-        '7:7:1,2,3,5:GGGGGGGSSSSSSSSSSSSSSSSSSSSSWWWSWWWSSSSSSSGGGGGGG:nnnnnnnnnnnnnnnbnnnnnnnnnnnngnnnnnnnnrnnnnnnnnnnn',
+        '7:7:1,2,3,5:GGGGGGGSSSSSSSSSSSSSSSSSSSSSWWWSWWWSSSSSSSGGGGGGG:nnnnnnnnnnnnnnnnnnnnnnnnnnnnsnnnnnnnnrnnnnnnnnnnn',
         '5:5:1,3:GGGGGSSSSSSWSWSSSSSSGGGGG:nnnnnnnnnnnnnnnnnnnnnnnnn',
         '6:7:1,5:GGGGGGSSSSSSWSWSWSSWSWSWWSWSWSSSSSSSGGGGGG:nnnnnnnnnnnnnnnnnnnnnnnnnrnnnnnnnnnnnnnnnn',
         '5:5:1,2,3:WGWGWSSSSSSSSSSSSSSSGGGGG:nnnnnnnnnnnnnnnnnnnnnnnnn',
@@ -150,8 +157,12 @@ Game.prototype.initializePlayer = function () {
     this.player.onGain(Item.Star, function (game) {
         game.player.indestructible = true;
 
+        var sprite = game.player.sprite;
+        game.player.sprite = sprite.substring(0, sprite.length - 4) + '-star.png';
+
         setTimeout(function () {
             game.player.indestructible = false;
+            game.player.sprite = sprite;
         }, 1000);
     });
 
@@ -430,3 +441,35 @@ Player.prototype.moveTo = function (x, y) {
         this.game.board.removeItem(y, x);
     }
 };
+
+CharacterSelector = function () {
+    this.characters = null;
+    this.position = 0;
+    this.characterSelectedCallback = function (character) { };
+};
+
+CharacterSelector.prototype.onCharacterSelected = function (callback) {
+    this.characterSelectedCallback = callback;
+};
+
+CharacterSelector.prototype.handleInput = function (key) {
+    switch (key) {
+        case 'left':
+            if (this.position > 0) {
+                this.position--;
+            }
+            break;
+        case 'right':
+            if (this.position < this.characters.length - 1) {
+                this.position++;
+            }
+            break;
+        case 'enter':
+            if (this.position >= 0 && this.position <= this.characters.length - 1) {
+                this.characterSelectedCallback(this.characters[this.position]);
+            }
+            break;
+        default:
+            break;
+    }
+}
