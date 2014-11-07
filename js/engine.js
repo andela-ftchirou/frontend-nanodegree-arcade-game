@@ -179,6 +179,17 @@ var Engine = (function(global) {
                 $('#game-area').css('display', 'block');
             })
         });
+
+        game.onGamePaused(function (game) {
+            animate = false;
+        });
+
+        game.onGameResumed(function (game) {
+            animate = true;
+            
+            lastTime = Date.now();
+            main();
+        });
     }
 
     function initializeCharacterSelector() {

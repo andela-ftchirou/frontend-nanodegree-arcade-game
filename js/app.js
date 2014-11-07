@@ -7,6 +7,7 @@ var Game = function () {
     this.board = null;
     this.characterSelector = new CharacterSelector();
     this.characterSelector.hasFocus = true;
+    this.paused = false;
 
     this.initializeLevels();
 
@@ -26,7 +27,9 @@ var Game = function () {
             39: 'right',
             40: 'down',
             72: 'help',
-            13: 'enter'
+            13: 'enter',
+            80: 'pause',
+            81: 'stop'
         };
 
         if (that.characterSelector.hasFocus) {
@@ -241,6 +244,8 @@ Game.prototype.initializeGameCallbacks = function () {
     this.gameOverCallback = function (game) { };
     this.gameRestartCallback = function (game) { };
     this.gameCompletedCallback = function (game) { };
+    this.gamePausedCallback = function (game) { };
+    this.gameResumedCallback = function (game) { };
 };
 
 Game.prototype.onLifeLost = function (callback) {
@@ -265,6 +270,14 @@ Game.prototype.onGameRestart = function (callback) {
 
 Game.prototype.onGameCompleted = function (callback) {
     this.gameCompletedCallback = callback;
+};
+
+Game.prototype.onGamePaused = function (callback) {
+    this.gamePausedCallback = callback;
+};
+
+Game.prototype.onGameResumed = function (callback) {
+    this.gameResumedCallback = callback;
 };
 
 Game.prototype.isLevelCleared = function () {
@@ -425,6 +438,15 @@ Player.prototype.handleInput = function (key) {
         case 'help':
             this.game.helpPlayer();
             break;
+        case 'pause':
+            if (!this.game.paused) {
+                this.game.paused = true;
+                this.game.gamePausedCallback(this.game);
+            } else {
+                this.game.paused = false;
+                this.game.gameResumedCallback(this.game);
+            }
+            break;
         default:
             break;
     }
@@ -432,6 +454,10 @@ Player.prototype.handleInput = function (key) {
 };
 
 Player.prototype.moveTo = function (x, y) {
+    if (this.game.paused) {
+        return;
+    }
+    
     this.x = x;
     this.y = y;
 
