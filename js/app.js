@@ -113,7 +113,8 @@ Game.prototype.resume = function () {
     }
 };
 
-// Restart the game at the same level after a life lost.
+// Decrement the number of remaining lives and 
+// restart the game at the same level.
 Game.prototype.reset = function () {
     this.lives--;
 
@@ -143,7 +144,7 @@ Game.prototype.spawnPlayer = function () {
 };
 
 // Move the player at the bottom-left of the board and
-// send a randomely chose item to the player.
+// put a randomely chose item on the board.
 Game.prototype.helpPlayer = function () {
     if (this.lives >= 1) {
         this.player.x = 0;
@@ -152,7 +153,7 @@ Game.prototype.helpPlayer = function () {
         var items = [Item.Heart, Item.Star, Item.Key, Item.Rock, Item.BlueGem, Item.GreenGem];
         var item = items[this.randomInt(0, items.length - 1)];
 
-        // Put the item at the first free cell of the last row of the board.
+        // Put the item in the first free cell of the last row of the board.
         var row = this.board.height - 1;
         for (var col = this.board.width - 1; col > 0; --col) {
             if (this.board.getItem(row, col) === Item.None) {
