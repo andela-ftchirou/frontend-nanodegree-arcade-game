@@ -271,7 +271,8 @@ Game.prototype.initializePlayer = function () {
     // The enemies will be freezed for 1 second if the
     // player is in possession of a green gem.
     this.player.onGain(Item.GreenGem, function (game) {
-        var speeds = [];
+        var speeds = []; // To keep track of the enemies previous speed.
+        var level = game.level;
 
         for (var i = 0; i < game.numEnemies; ++i) {
             speeds.push(game.enemies[i].speed);
@@ -279,8 +280,10 @@ Game.prototype.initializePlayer = function () {
         }
 
         setTimeout(function () {
-            for (var i = 0; i < game.enemies.length; ++i) {
-                game.enemies[i].speed = speeds[i];
+            if (game.level === level) {
+                for (var i = 0; i < game.enemies.length; ++i) {
+                    game.enemies[i].speed = speeds[i];
+                }
             }
         }, 1000);
     });
