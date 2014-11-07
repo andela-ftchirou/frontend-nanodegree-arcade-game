@@ -1,3 +1,6 @@
+// Game.
+// The main class.
+// Handles all the logic of the game (rules, levels, player, enemies, ...)
 var Game = function () {
     this.level = -1;
     this.player = new Player(this, 0, 0);
@@ -50,6 +53,8 @@ Game.prototype.levelUp = function () {
     }
 
     if (this.level < this.levels.length) {
+        // For each level cleared, improve the chances of the enemies
+        // to run faster.
         this.minEnemySpeed += 1;
         this.maxEnemySpeed += 1;
 
@@ -108,6 +113,7 @@ Game.prototype.resume = function () {
     }
 };
 
+// Restart the game at the same level after a life lost.
 Game.prototype.reset = function () {
     this.lives--;
 
@@ -119,6 +125,7 @@ Game.prototype.reset = function () {
     }
 };
 
+// Completely restart the game at the first level.
 Game.prototype.restart = function () {
     this.level = -1;
     this.minEnemySpeed = 1;
@@ -127,11 +134,16 @@ Game.prototype.restart = function () {
     this.levelUp();
 };
 
+// Put a player on the board.
+// The player is spawned at the last row of the board and
+// at a randomely chose column.
 Game.prototype.spawnPlayer = function () {
     this.player.x = this.randomInt(0, this.board.width - 1);
     this.player.y = this.board.height - 1;
 };
 
+// Move the player at the bottom-left of the board and
+// send a randomely chose item to the player.
 Game.prototype.helpPlayer = function () {
     if (this.lives >= 1) {
         this.player.x = 0;
@@ -140,6 +152,7 @@ Game.prototype.helpPlayer = function () {
         var items = [Item.Heart, Item.Star, Item.Key, Item.Rock, Item.BlueGem, Item.GreenGem];
         var item = items[this.randomInt(0, items.length - 1)];
 
+        // Put the item at the first free cell of the last row of the board.
         var row = this.board.height - 1;
         for (var col = this.board.width - 1; col > 0; --col) {
             if (this.board.getItem(row, col) === Item.None) {
@@ -153,6 +166,17 @@ Game.prototype.helpPlayer = function () {
     }
 };
 
+// The levels of the game are contained in this.levels, an array of string.
+// The format of a level is pretty simple:
+//                           cols:rows:roads:blocks:items
+// where
+//   cols   = an integer, the number of columns of the board.
+//   rows   = an integer, the number of rows of the board.
+//   roads  = a list of comma-separated integers, each integer is a row index on which enemies should be spawned.
+//   blocks = a string of length cols x rows of characters G (for grass), W (for water) and S (for stone), the map of the board.
+//   items  = a string of length cols x rows of characters n (for none), r (for rock), b (for blue gem), g (for green gem), ...
+//            the map of the initial items to be placed on the board. If initially, there are no items
+//            on the board, this part can be omitted.
 Game.prototype.initializeLevels = function () {
     this.levels = [
         '5:3:1:GGGGGSSSSSGGGGG:nnnnnnnnnnnnnnn',
@@ -168,6 +192,8 @@ Game.prototype.initializeLevels = function () {
     ];
 };
 
+// Initialize the player. Mainly, defines what happens to
+// the game when the player gains a specific item.
 Game.prototype.initializePlayer = function () {
     this.player.onGain(Item.Heart, function (game) {
         game.lives++;
@@ -178,8 +204,13 @@ Game.prototype.initializePlayer = function () {
         game.player.indestructible = true;
 
         var sprite = game.player.sprite;
+
+        // Let the player look different now that he is indestructible.
+        // This suppose that for a sprite name 'player.png', there is an
+        // associated sprite name 'player-star.png'.
         game.player.sprite = sprite.substring(0, sprite.length - 4) + '-star.png';
 
+        // The player will return to normal (sadly) after 1 second.
         setTimeout(function () {
             game.player.indestructible = false;
             game.player.sprite = sprite;
@@ -190,8 +221,10 @@ Game.prototype.initializePlayer = function () {
         game.levelUp();
     });
 
+    // All the water blocks on the board are turned into stone blocks
+    // when the player gains a 'rock' item.
     this.player.onGain(Item.Rock, function (game) {
-        var pos = [];
+        var pos = []; // To keep track of the positions of the water blocks.
         var level = game.level;
 
         for (var row = 0; row < game.board.height; ++row) {
@@ -206,7 +239,7 @@ Game.prototype.initializePlayer = function () {
         }
 
         setTimeout(function () {
-            if (level === game.level) {
+            if (level === game.level) { // No need to undo the effects of this item if the player has already cleared the level.
                 for (var i = 0; i < pos.length; ++i) {
                     game.board.setBlock(pos[i].row, pos[i].col, Block.Water);
                 }
@@ -214,11 +247,14 @@ Game.prototype.initializePlayer = function () {
         }, 1000);
     });
 
+    // Each enemy speed will be divided by 3 if the
+    // player gains a blue gem ...
     this.player.onGain(Item.BlueGem, function (game) {
         for (var i = 0; i < game.enemies.length; ++i) {
             game.enemies[i].speed /= 3;
         }
 
+        // ... for 1 second.
         setTimeout(function () {
             for (var i = 0; i < game.enemies.length; ++i) {
                 game.enemies[i].speed *= 3;
@@ -226,6 +262,8 @@ Game.prototype.initializePlayer = function () {
         }, 1000);
     });
 
+    // The enemies will be freezed for 1 second if the
+    // player is in possession of a green gem.
     this.player.onGain(Item.GreenGem, function (game) {
         var speeds = [];
 
@@ -251,10 +289,13 @@ Game.prototype.initializeEnemies = function () {
     this.maxEnemySpeed = 4;
 };
 
+// The game exposes hooks to allow external
+// entities (in particular the game engine) to do something 
+// when important actions happens.
 Game.prototype.initializeGameCallbacks = function () {
-    this.lifeLostCallback = function (lives) { };
-    this.lifeGainedCallback = function (lives) { };
-    this.levelClearedCallback = function (level) { };
+    this.lifeLostCallback = function (lives) { }; // The number of remaining lives is passed in parameter.
+    this.lifeGainedCallback = function (lives) { }; // The number of remaining lives added to the number of gained lives is passed in parameter.
+    this.levelClearedCallback = function (level) { }; // The new level (integer) is passed in parameter.
     this.gameOverCallback = function (game) { };
     this.gameRestartCallback = function (game) { };
     this.gameCompletedCallback = function (game) { };
@@ -294,10 +335,13 @@ Game.prototype.onGameResumed = function (callback) {
     this.gameResumedCallback = callback;
 };
 
+// A level is cleared if the player reachs a grass block at the top row of the board.
 Game.prototype.isLevelCleared = function () {
     return (this.player.y === 0) && (this.board.getBlock(this.player.y, this.player.x) === Block.Grass);
 };
 
+// Used to test if an enemy is sufficiently close
+// to the player to hit him.
 Game.prototype.closeEnough = function (a, b) {
     return Math.abs(a - b) < 0.1;
 };
@@ -306,12 +350,15 @@ Game.prototype.randomInt = function (min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
+
+// Block types which compose a board.
 var Block = {
     Water: 'W',
     Grass: 'G',
     Stone: 'S'
 };
 
+// Items which can be available on the board.
 var Item = {
     BlueGem: 'b',
     GreenGem: 'g',
@@ -323,6 +370,15 @@ var Item = {
     None: 'n'
 };
 
+// Board class represents the board on which the game is played.
+// Its constructor takes in parameter a string formatted as:
+//   cols:rows:roads:blocks:items (see comments at line 167)
+// representing a level. The string is parsed
+// and used to initialize the properties of the board:
+//    width: the width of the board.
+//    height: the height of the board.
+//    roads: free roads on which the enemies can run.
+//    items: initial items present on the board.
 var Board = function (level) {
     var data = level.split(':');
 
@@ -373,6 +429,9 @@ Board.prototype.removeItem = function (row, col) {
     this.setItem(row, col, Item.None);
 };
 
+
+// Any character in the game. 
+// It is positioned at col y and row x on the board.
 var Character = function (game, x, y) {
     this.game = game;
     this.x = x;
@@ -385,6 +444,9 @@ Character.prototype.render = function () {
     ctx.drawImage(Resources.get(this.sprite), this.x * 101, this.y * 83 - 20);
 };
 
+
+// Enemy. Extends Character.
+// An enemy has a speed at which he runs on the roads.
 var Enemy = function(game, x, y, speed) {
     Character.call(this, game, x, y);
 
@@ -399,16 +461,24 @@ Enemy.prototype.update = function (dt) {
     this.x += this.speed * dt;
 
     if (this.x >= this.game.board.width) {
+        // Spawn an enemy at the left, off the board to have the impression the roads are not limited by the dimensions of the board.
         this.x = -1;
+
+        // Randomely choose a road on which spawn the enemy.
         this.y = this.game.board.roads[this.game.randomInt(0, this.game.board.roads.length - 1)];
+
+        // Randomely choose a speed at which the enemy will run between enemies minimal and maximal speeds.
         this.speed = this.game.randomInt(this.game.minEnemySpeed, this.game.maxEnemySpeed);
     }
 };
 
+
+// Player class. Extends Character.
 var Player = function (game, x, y) {
     Character.call(this, game, x, y);
     this.sprite = 'images/char-boy.png';
 
+    // Hooks to define what happens when the player gains a specific item.
     this.gainCallbacks = { };
 
     this.indestructible = false;
@@ -417,12 +487,16 @@ var Player = function (game, x, y) {
 Player.prototype = Object.create(Character.prototype);
 Player.prototype.constructor = Player;
 
+// At each frame, check if the player has cleared the level.
+// If yes, go to next level.
 Player.prototype.update = function () {
     if (this.game.isLevelCleared()) {
         this.game.levelUp();
     }
 };
 
+// Defines a callback function to be called when the
+// player gains an item.
 Player.prototype.onGain = function (item, callback) {
     this.gainCallbacks[item] = callback;
 };
@@ -487,10 +561,19 @@ Player.prototype.moveTo = function (x, y) {
     }
 };
 
+
+// CharacterSelector class.
+// As its name implies, its purpose is to
+// select a character in a list of characters.
+// It is used to select a player at the beginning 
+// of the game.
 CharacterSelector = function () {
-    this.characters = null;
-    this.position = 0;
+    this.characters = null; // The characters between which one should be chosed.
+    this.position = 0; // The current position of the selector.
     this.hasFocus = false;
+
+    // A callback to call when a character has been chosed.
+    // It gets passed the chosen character as parameter.
     this.characterSelectedCallback = function (character) { };
 };
 

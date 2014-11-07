@@ -30,7 +30,7 @@ var Engine = (function(global) {
 
     function init() {
 
-        reset();
+        restart();
         lastTime = Date.now();
         main();
     }
@@ -120,12 +120,16 @@ var Engine = (function(global) {
         }
     }
 
-    function reset() {
+    function restart() {
         game.restart();
     }
 
+    // Initialize the game and setup
+    // callbacks to call when important actions
+    // happens in the game (mainly clearing, updating the canvas
+    // and updating the screen with useful informations).
     function initializeGame(game) {
-        initializeCharacterSelector();
+        initializeCharacterSelector(game);
 
         game.onLifeLost(function (lives) { 
             $('.lives').text(lives); 
@@ -191,7 +195,7 @@ var Engine = (function(global) {
         });
     }
 
-    function initializeCharacterSelector() {
+    function initializeCharacterSelector(game) {
         var characters = [
             {name: 'boy', sprite: 'images/char-boy.png'},
             {name: 'cat-girl', sprite: 'images/char-cat-girl.png'},
