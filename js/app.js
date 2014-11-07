@@ -378,6 +378,7 @@ var Item = {
 //    width: the width of the board.
 //    height: the height of the board.
 //    roads: free roads on which the enemies can run.
+//    blocks: the map or configuration of the board.
 //    items: initial items present on the board.
 var Board = function (level) {
     var data = level.split(':');
@@ -393,7 +394,7 @@ var Board = function (level) {
 
     this.blocks = data[3];
 
-    if (data.length > 3) {
+    if (data.length > 4) {
         this.items = data[4];
     }
 };
@@ -441,7 +442,7 @@ var Character = function (game, x, y) {
 };
 
 Character.prototype.render = function () {
-    ctx.drawImage(Resources.get(this.sprite), this.x * 101, this.y * 83 - 20);
+    ctx.drawImage(Resources.get(this.sprite), this.x * 101, this.y * 83 - 20); // -20 to "center" the character on a block.
 };
 
 
@@ -458,10 +459,11 @@ Enemy.prototype = Object.create(Character.prototype);
 Enemy.prototype.constructor = Enemy;
 
 Enemy.prototype.update = function (dt) {
-    this.x += this.speed * dt;
+    this.x += this.speed * dt; // this.x = this.x + ds where ds (distance travelled during dt) = speed * dt.
 
     if (this.x >= this.game.board.width) {
-        // Spawn an enemy at the left, off the board to have the impression the roads are not limited by the dimensions of the board.
+        // Spawn an enemy at the left, off the board to have the impression that
+        // the roads are not limited by the dimensions of the board.
         this.x = -1;
 
         // Randomely choose a road on which spawn the enemy.
@@ -534,7 +536,7 @@ Player.prototype.handleInput = function (key) {
             }
             break;
         case 'quit':
-            this.game.resume(); // Just in case the game was paused.
+            this.game.resume(); // Just in case the game was paused before quitting.
             this.game.characterSelector.hasFocus = true;
             this.game.restart();
         default:
@@ -564,16 +566,16 @@ Player.prototype.moveTo = function (x, y) {
 
 // CharacterSelector class.
 // As its name implies, its purpose is to
-// select a character in a list of characters.
+// select a character in an array of characters.
 // It is used to select a player at the beginning 
 // of the game.
 CharacterSelector = function () {
-    this.characters = null; // The characters between which one should be chosed.
+    this.characters = null; // The characters between which one should be selected.
     this.position = 0; // The current position of the selector.
     this.hasFocus = false;
 
-    // A callback to call when a character has been chosed.
-    // It gets passed the chosen character as parameter.
+    // A callback to call when a character has been selected.
+    // It gets passed the selected character as parameter.
     this.characterSelectedCallback = function (character) { };
 };
 
