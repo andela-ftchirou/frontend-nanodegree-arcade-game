@@ -76,6 +76,10 @@ var Engine = (function(global) {
                 var block = game.board.getBlock(row, col);
                 var item = game.board.getItem(row, col);
 
+                if (row === 0) { // Clear the top row of the board to remove any previous frame's remaining pixel.
+                    ctx.clearRect(col * 101, row * 83, 101, 171);
+                }
+
                 ctx.drawImage(Resources.get(Images[block]), col * 101, row * 83);
 
                 if (item != Item.None) {
