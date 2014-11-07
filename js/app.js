@@ -94,6 +94,20 @@ Game.prototype.isPlayerDrowning = function () {
     return !this.player.indestructible && this.board.getBlock(this.player.y, this.player.x) === Block.Water;
 };
 
+Game.prototype.pause = function () {
+    if (!this.paused) {
+        this.paused = true;
+        this.gamePausedCallback(this);
+    }
+};
+
+Game.prototype.resume = function () {
+    if (this.paused) {
+        this.paused = false;
+        this.gameResumedCallback(this);
+    }
+};
+
 Game.prototype.reset = function () {
     this.lives--;
 
@@ -440,15 +454,13 @@ Player.prototype.handleInput = function (key) {
             break;
         case 'pause':
             if (!this.game.paused) {
-                this.game.paused = true;
-                this.game.gamePausedCallback(this.game);
+                this.game.pause();
             } else {
-                this.game.paused = false;
-                this.game.gameResumedCallback(this.game);
+                this.game.resume();
             }
             break;
         case 'quit':
-            this.game.paused = false;
+            this.game.resume(); // Just in case the game was paused.
             this.game.characterSelector.hasFocus = true;
             this.game.restart();
         default:
