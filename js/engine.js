@@ -110,12 +110,12 @@ var Engine = (function(global) {
         canvas.width = characters.length * 101;
         canvas.height = 171;
 
+        ctx.drawImage(Resources.get(selectorImage), game.characterSelector.position * 101, 0);
+
         for (var i = 0; i < characters.length; ++i) {
             var r = Resources.get(characters[i].sprite);
             ctx.drawImage(Resources.get(characters[i].sprite), i * 101, 0);
         }
-
-        ctx.drawImage(Resources.get(selectorImage), game.characterSelector.position * 101, 0);
     }
 
     function checkCollisions() {
