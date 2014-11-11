@@ -256,14 +256,17 @@ Game.prototype.initializePlayer = function () {
     // Each enemy speed will be divided by 3 if the
     // player gains a blue gem ...
     this.player.onGain(Item.BlueGem, function (game) {
+        var level = game.level;
         for (var i = 0; i < game.enemies.length; ++i) {
             game.enemies[i].speed /= 3;
         }
 
         // ... for 1 second.
         setTimeout(function () {
-            for (var i = 0; i < game.enemies.length; ++i) {
-                game.enemies[i].speed *= 3;
+            if (game.level === level) {
+                for (var i = 0; i < game.enemies.length; ++i) {
+                    game.enemies[i].speed *= 3;
+                }
             }
         }, 1000);
     });
