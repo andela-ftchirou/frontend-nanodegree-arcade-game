@@ -582,7 +582,7 @@ Player.prototype.moveTo = function (x, y) {
 // select a character in an array of characters.
 // It is used to select a player at the beginning 
 // of the game.
-CharacterSelector = function () {
+var CharacterSelector = function () {
     this.characters = null; // The characters between which one should be selected.
     this.position = 0; // The current position of the selector.
     this.hasFocus = false;
