@@ -303,7 +303,7 @@ Game.prototype.initializeEnemies = function () {
 
 // The game exposes hooks to allow external
 // entities (in particular the game engine) to do something 
-// when important actions happens.
+// when important events occur.
 Game.prototype.initializeGameCallbacks = function () {
     this.lifeLostCallback = function (lives) { }; // The number of remaining lives is passed in parameter.
     this.lifeGainedCallback = function (lives) { }; // The number of remaining lives added to the number of gained lives is passed in parameter.
