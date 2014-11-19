@@ -1,25 +1,88 @@
-// Game.
-// The main class.
-// Handles all the logic of the game (rules, levels, player, enemies, ...)
+/**
+ * @fileoverview Classes for handling the game logic.
+ *
+ * @author ftchirou@gmail.com (Faiçal Tchirou)
+ */
+
+/**
+ * Game class.
+ * Handles all the logic of the game (rules, levels, player, enemies, ...)
+ * @constructor
+ */
 var Game = function () {
+    /**
+     * Current level of the game.
+     * The first level is 0.
+     * @type {number}
+     */
     this.level = -1;
+
+    /**
+     * All the levels of the game.
+     * @type {Array.<string>}
+     */
+    this.levels = [];
+
+    /**
+     * Player of the game. Initialized at position (0, 0)
+     * @type {Player}
+     */
     this.player = new Player(this, 0, 0);
+
+    /**
+     * Enemies of the game.
+     * @type {Array.<Enemy>}
+     */
     this.enemies = [];
+
+    /**
+     * Maximum number of player's lives.
+     * @type {number}
+     */
     this.maxLives = 3;
+
+    /**
+     * Current number of player's lives.
+     * @type {number}
+     */
     this.lives = this.maxLives;
+
+    /**
+     * Current game board.
+     * @type {Board}
+     */
     this.board = null;
+
+    /**
+     * Game character selector.
+     * @type {CharacterSelector}
+     */
     this.characterSelector = new CharacterSelector();
+
+    // At the beginning, the character selection has the focus
+    // to allow player selection.
     this.characterSelector.hasFocus = true;
+    
+    /**
+     * Whether the game is paused or not.
+     * @type {boolean}
+     */
     this.paused = false;
 
+    // Initializes {@code this.levels}
     this.initializeLevels();
 
+    // Initializes {@code this.player}
     this.initializePlayer();    
 
+    // Initializes {@code this.enemies}
     this.initializeEnemies();
 
+    // Initializes in-game events handlers.
     this.initializeGameCallbacks();
 
+    // {@code this.levelUp()} is called to start the game.
+    // from level -1 to level 0.
     this.levelUp();
 
     var that = this;
@@ -43,6 +106,14 @@ var Game = function () {
     });
 };
 
+/**
+ * Increments the current level of the game. If
+ * the level was the last level of the game, calls
+ * {@code this.gameCompletedCallback(this)}, if not
+ * updates @code {Game} properties to match the
+ * new current level.
+ * @return {void}
+ */
 Game.prototype.levelUp = function () {
     this.level++;
 
@@ -79,6 +150,9 @@ Game.prototype.levelUp = function () {
     }
 };
 
+/**
+ * @return {boolean} Whether the player was hit by an enemy.
+ */
 Game.prototype.wasPlayerHit = function () {
     if (this.player.indestructible) {
         return false;
@@ -95,10 +169,17 @@ Game.prototype.wasPlayerHit = function () {
     return false;
 };
 
+/**
+ * @return {boolean} Whether the player is not indesctructible and is on a water block on the board.
+ */
 Game.prototype.isPlayerDrowning = function () {
     return !this.player.indestructible && this.board.getBlock(this.player.y, this.player.x) === Block.Water;
 };
 
+/**
+ * Pauses the game and call the function to execute when the game pauses.
+ * @return {void}
+ */
 Game.prototype.pause = function () {
     if (!this.paused) {
         this.paused = true;
@@ -106,6 +187,10 @@ Game.prototype.pause = function () {
     }
 };
 
+/**
+ * Resumes the game and call the function to execute when the game resumes.
+ * @return {void}
+ */
 Game.prototype.resume = function () {
     if (this.paused) {
         this.paused = false;
@@ -113,8 +198,11 @@ Game.prototype.resume = function () {
     }
 };
 
-// Decrement the number of remaining lives and 
-// restart the game at the same level.
+/**
+ * Resets the game at the current level, usually
+ * after the player has lost a life.
+ * @return {void}
+ */
 Game.prototype.reset = function () {
     this.lives--;
 
@@ -127,7 +215,10 @@ Game.prototype.reset = function () {
     }
 };
 
-// Completely restart the game at the first level.
+/**
+ * Restarts the game at the first level.
+ * @return {void}
+ */
 Game.prototype.restart = function () {
     this.level = -1;
     this.minEnemySpeed = 1;
@@ -136,16 +227,21 @@ Game.prototype.restart = function () {
     this.levelUp();
 };
 
-// Put a player on the board.
-// The player is spawned at the last row of the board and
-// at a randomely chose column.
+/**
+ * Resets {@code this.player} x and y coordinates.
+ * @return {void}
+ */
 Game.prototype.spawnPlayer = function () {
     this.player.x = this.randomInt(0, this.board.width - 1);
     this.player.y = this.board.height - 1;
 };
 
-// Move the player at the bottom-left of the board and
-// put a randomely chose item on the board.
+/**
+ * Resets {@code this.player} (x, y) coordinates to
+ * ({@code 0}, {@code this.board.height - 1}) and puts
+ * an item at the bottom row of the board.
+ * @return {void}
+ */
 Game.prototype.helpPlayer = function () {
     if (this.lives >= 1) {
         this.player.x = 0;
@@ -168,17 +264,25 @@ Game.prototype.helpPlayer = function () {
     }
 };
 
-// The levels of the game are contained in this.levels, an array of string.
-// The format of a level is pretty simple:
-//                           cols:rows:roads:blocks:items
-// where
-//   cols   = an integer, the number of columns of the board.
-//   rows   = an integer, the number of rows of the board.
-//   roads  = a list of comma-separated integers, each integer is a 0-based row index on which enemies should be spawned.
-//   blocks = a string of length cols x rows of characters G (for grass), W (for water) and S (for stone), the map of the board.
-//   items  = a string of length cols x rows of characters n (for none), r (for rock), b (for blue gem), g (for green gem), ...
-//            the map of the initial items to be placed on the board. If initially, there are no items
-//            on the board, this part can be omitted.
+
+/**
+ * Assigns an array of string (each string describing a level) to {@code this.levels}.
+ * <p>Each string of the array will be
+ * passed to the {@code Board} constructor and defines how the board
+ * will be rendered on the screen.</p>
+ * <p>The format of each level is
+ * <em>columns:rows:roads:blocks:items</em> where
+ * <ul>
+ *      <li>columns (integer) : the number of columns of the board.</li>
+ *      <li>rows (integer) : the number of rows of the board.</li>
+ *      <li>roads (integer list) : the row indexes on which enemies can be spawned.</li>
+ *      <li>blocks (string of length columns x rows) : the map of the board. The valid characters
+ *          of this string are the properties of the {@code Block} object.</li>
+ *      <li>items (string of length columns x rows) : the map of the initial items on the board. The
+ *          valid characters of this string are the properties of the {@code Item} object.</li>
+ * </ul>
+ * @return {void}
+ */
 Game.prototype.initializeLevels = function () {
     this.levels = [
         '5:3:1:GGGGGSSSSSGGGGG:nnnnnnnnnnnnnnn',
@@ -194,8 +298,12 @@ Game.prototype.initializeLevels = function () {
     ];
 };
 
-// Initialize the player. Mainly, defines what happens to
-// the game when the player gains a specific item.
+/**
+ * Initializes the player, in particular sets up
+ * the various <em>gain</em> event handlers. That is
+ * when the player gains a specific item.
+ * @return {void}
+ */
 Game.prototype.initializePlayer = function () {
     this.player.onGain(Item.Heart, function (game) {
         game.lives++;
@@ -211,7 +319,7 @@ Game.prototype.initializePlayer = function () {
 
         var sprite = game.player.sprite;
 
-        // Let the player look different now that he is indestructible.
+        // Use a different sprite for the player when he is indestructible.
         // This suppose that for a sprite name 'player.png', there is an
         // associated sprite name 'player-star.png'.
         game.player.sprite = sprite.substring(0, sprite.length - 4) + '-star.png';
@@ -296,81 +404,190 @@ Game.prototype.initializePlayer = function () {
     });
 };
 
+/**
+ * Initializes the default range of speed ([1, 4]) of the enemies.
+ * @return {void}
+ */
 Game.prototype.initializeEnemies = function () {
+    /**
+     * Minimum enemy speed.
+     * @type {number}
+     */
     this.minEnemySpeed = 1;
+
+    /**
+     * Maximum enemy speed.
+     * @type {number}
+     */
     this.maxEnemySpeed = 4;
 };
 
-// The game exposes hooks to allow external
-// entities (in particular the game engine) to do something 
-// when important actions happens.
+/**
+ * Sets up the default in-game events (life lost, life gained, game over, ...) handlers.
+ * By default, nothing happens when an in-game event occurs.
+ * @return {void}
+ */
 Game.prototype.initializeGameCallbacks = function () {
-    this.lifeLostCallback = function (lives) { }; // The number of remaining lives is passed in parameter.
-    this.lifeGainedCallback = function (lives) { }; // The number of remaining lives added to the number of gained lives is passed in parameter.
-    this.levelClearedCallback = function (level) { }; // The new level (integer) is passed in parameter.
+    /**
+     * Function to call when the player looses a live.
+     * Takes 1 argument (the remaining lives).
+     * @type {function(number): void}
+     */
+    this.lifeLostCallback = function (lives) { };
+
+    /**
+     * Function to call when the player gains a live.
+     * Takes 1 argument (the new lives).
+     * @type {function(number): void}
+     */
+    this.lifeGainedCallback = function (lives) { };
+
+    /**
+     * Function to call when the player clears a level.
+     * Takes 1 argument (the new level).
+     * @type {function(number): void}
+     */
+    this.levelClearedCallback = function (level) { };
+
+    /**
+     * Function to call when the player has lost all his lives.
+     * Takes 1 argument (the current game).
+     * @type {function(Game): void}
+     */
     this.gameOverCallback = function (game) { };
+
+    /**
+     * Function to call when the game starts or restarts.
+     * Takes 1 argument (the current game).
+     * @type {function(Game): void}
+     */
     this.gameRestartCallback = function (game) { };
+
+    /**
+     * Function to call when all the levels of the game are cleared.
+     * Takes 1 argument (the current game).
+     * @type {function(Game): void}
+     */
     this.gameCompletedCallback = function (game) { };
+
+    /**
+     * Function to call just after the game is paused.
+     * @type {function(Game): void}
+     */
     this.gamePausedCallback = function (game) { };
+
+    /**
+     * Function to call just after the game resumes.
+     * @type {function(Game): void}
+     */
     this.gameResumedCallback = function (game) { };
 };
 
+/**
+ * @return {void}
+ */
 Game.prototype.onLifeLost = function (callback) {
     this.lifeLostCallback = callback;
 };
 
+/**
+ * @return {void}
+ */
 Game.prototype.onLifeGained = function (callback) {
     this.lifeGainedCallback = callback;
 };
 
+/**
+ * @return {void}
+ */
 Game.prototype.onLevelCleared = function (callback) {
     this.levelClearedCallback = callback;
 };
 
+/**
+ * @return {void}
+ */
 Game.prototype.onGameOver = function (callback) {
     this.gameOverCallback = callback;
 };
 
+/**
+ * @return {void}
+ */
 Game.prototype.onGameRestart = function (callback) {
     this.gameRestartCallback = callback;
 };
 
+/**
+ * @return {void}
+ */
 Game.prototype.onGameCompleted = function (callback) {
     this.gameCompletedCallback = callback;
 };
 
+/**
+ * @return {void}
+ */
 Game.prototype.onGamePaused = function (callback) {
     this.gamePausedCallback = callback;
 };
 
+/**
+ * @return {void}
+ */
 Game.prototype.onGameResumed = function (callback) {
     this.gameResumedCallback = callback;
 };
 
-// A level is cleared if the player reachs a grass block at the top row of the board.
+/**
+ * Checks if the player has cleared the current level.
+ * A level is cleared when the player is at the top row
+ * of the board {@code this.player.y === 0} and on a grass block
+ * {@code this.board.getBlock(this.player.y, this.player.x) === Block.Grass}
+ * @return {boolean} true if the level is cleared.
+ */
 Game.prototype.isLevelCleared = function () {
     return (this.player.y === 0) && (this.board.getBlock(this.player.y, this.player.x) === Block.Grass);
 };
 
-// Used to test if an enemy is sufficiently close
-// to the player to hit him.
+/**
+ * Checks if 2 real numbers are close enough (can be considered equal in the purpose of the game).
+ * If their difference is less than 0.1, they are considered equal.
+ * @param {number} a The first number.
+ * @param {number} b The second number.
+ * @return {boolean} Whether the 2 numbers are close enough.
+ */
 Game.prototype.closeEnough = function (a, b) {
     return Math.abs(a - b) < 0.1;
 };
 
+/**
+ * Generates a random integer between 2 numbers.
+ * @param {number} min The minimum integer which could be generated.
+ * @param {number} max The maximum integer which could be generated.
+ * @return {number} The generated number.
+ */
 Game.prototype.randomInt = function (min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
 
-// Block types which compose a board.
+/**
+ * Block types which compose the board.
+ * @enum {string}
+ * @dict
+ */
 var Block = {
     Water: 'W',
     Grass: 'G',
     Stone: 'S'
 };
 
-// Items which can be available on the board.
+/**
+ * Kinds of items which can be available on the board.
+ * @enum {string}
+ * @dict
+ */
 var Item = {
     BlueGem: 'b',
     GreenGem: 'g',
@@ -382,21 +599,38 @@ var Item = {
     None: 'n'
 };
 
-// Board class represents the board on which the game is played.
-// Its constructor takes in parameter a string formatted as:
-//   cols:rows:roads:blocks:items (see comments at line 171)
-// representing a level. The string is parsed
-// and used to initialize the properties of the board:
-//    width: the width of the board.
-//    height: the height of the board.
-//    roads: free roads on which the enemies can run.
-//    blocks: the map or configuration of the board.
-//    items: initial items present on the board.
+/**
+ * Board class.
+ * Represents the board on which the game is played.
+ * It is the first layer rendered.
+ * @param {string} level A string representation of the board (columns:rows:roads:blocks:items).
+ * @constructor
+ */
 var Board = function (level) {
+    // Array of strings containing the different parts of the boards.
+    // data[0] = number of columns.
+    // data[1] = number of rows.
+    // data[2] = list of roads.
+    // data[3] = board map.
+    // data[4] = items map.
     var data = level.split(':');
 
+    /**
+     * Number of columns of the board.
+     * @type {number}
+     */
     this.width = parseInt(data[0]);
+
+    /**
+     * Number of rows of the board.
+     * @type {number}
+     */
     this.height = parseInt(data[1]);
+    
+    /**
+     * List of row indexes on which enemies can be spawned.
+     * @type {Array.<number>}
+     */
     this.roads = [];
 
     var roadsData = data[2].split(',');
@@ -404,29 +638,77 @@ var Board = function (level) {
         this.roads.push(parseInt(roadsData[i]));
     }
 
+    /**
+     * Blocks composing the board. Each block value must be
+     * one of the values of the enumeration {@code Block}.
+     * @type {string}
+     */
     this.blocks = data[3];
 
+    // The items part of the string {@code level} may be
+    // omitted. We must then check if it is available
+    // before manipulating it.
     if (data.length > 4) {
+        /**
+         * Items available on the board. Each item value
+         * must be one of the values of the enumeration {@code Item}.
+         * @type {string}
+         */
         this.items = data[4];
+
+        /**
+         * Initial items configuration of the board.
+         * Can be used to reset {@code this.items} to its
+         * initial value.
+         * @type {Array.<string>}
+         */
         this.initialItems = this.items;
     }
 };
 
+/**
+ * Gets the block at position (row, col).
+ * @param {number} row The x position of the block.
+ * @param {number} col The y position of the block.
+ * @return {Block}
+ */
 Board.prototype.getBlock = function (row, col) {
     return this.blocks.charAt(row * this.width + col);
 };
 
+/**
+ * Changes the value of the block at position (row, col).
+ * @param {number} row The x position of the block.
+ * @param {number} col The y position of the block.
+ * @param {Block} the new block value.
+ * @return {void}
+ */
 Board.prototype.setBlock = function (row, col, newBlock) {
     var index = row * this.width + col;
 
     this.blocks = this.blocks.substring(0, index) + newBlock + this.blocks.substring(index + 1);
 };
 
+/**
+ * Gets the item at position (row, col).
+ * @param {number} row The x position of the item.
+ * @param {number} col The y position of the item.
+ * @return {Item}
+ */
 Board.prototype.getItem = function (row, col) {
     return this.items === undefined ? Item.None : this.items.charAt(row * this.width + col);
 };
 
+/**
+ * Changes the value of the item at position (row, col).
+ * @param {number} row The x position of the item.
+ * @param {number} col The y position of the item.
+ * @param {Item} the new item value.
+ * @return {void}
+ */
 Board.prototype.setItem = function (row, col, newItem) {
+    // In case, there were no items at the beginning of the game,
+    // initialize {@code this.items} before modifying it.
     if (this.items === undefined) {
         this.items = '';
         for (var i = 0; i < this.blocks.length; ++i) {
@@ -439,41 +721,97 @@ Board.prototype.setItem = function (row, col, newItem) {
     this.items = this.items.substring(0, index) + newItem + this.items.substring(index + 1);
 };
 
+/**
+ * Sets the item at position (row, col) to {@code Item.None}
+ * @param {number} row The x position of the item.
+ * @param {number} col The y position of the item.
+ * @return {void}
+ */
 Board.prototype.removeItem = function (row, col) {
     this.setItem(row, col, Item.None);
 };
 
+/**
+ * Restores {@code this.items} at its initial value.
+ * @return {void}
+ */
 Board.prototype.resetItems = function () {
     this.items = this.initialItems;
 };
 
-// Any character in the game. 
-// It is positioned at col y and row x on the board.
+/**
+ * Character class.
+ * Represents any character on the board.
+ * @param {Game} game The game the character belongs to.
+ * @param {number} x The initial x position of the character.
+ * @param {number} y The initial y position of the character.
+ * @constructor
+ */
 var Character = function (game, x, y) {
+    /**
+     * Game the character belongs to.
+     * @type {Game}
+     */
     this.game = game;
+    
+    /**
+     * x position of the character.
+     * @type {number}
+     */
     this.x = x;
+
+    /**
+     * y position of the character.
+     * @type {number}
+     */
     this.y = y;
 
+    /**
+     * Path to the sprite file of the character.
+     * @type {string}
+     */
     this.sprite = null;
 };
 
+/**
+ * Draws the character on the game canvas.
+ * @return {void}
+ */
 Character.prototype.render = function () {
     ctx.drawImage(Resources.get(this.sprite), this.x * 101, this.y * 83 - 20); // -20 to "center" the character on a block.
 };
 
 
-// Enemy. Extends Character.
-// An enemy has a speed at which he runs on the roads.
+/**
+ * Enemy class.
+ * Represents an enemy in the game.
+ * @param {Game} game The game the enemy belongs to.
+ * @param {number} x The initial x position of the enemy.
+ * @param {number} y The initial y position of the enemy.
+ * @param {number} speed The initial speed of the enemy.
+ * @constructor
+ * @extends {Character}
+ */
 var Enemy = function(game, x, y, speed) {
     Character.call(this, game, x, y);
 
     this.sprite = 'images/enemy-bug.png';
+
+    /**
+     * Current speed of the enemy.
+     * @type {number}
+     */
     this.speed = speed;
 }
 
 Enemy.prototype = Object.create(Character.prototype);
 Enemy.prototype.constructor = Enemy;
 
+/**
+ * Updates the enemy position at each frame.
+ * @param {number} dt The elapsed time since the last update.
+ * @return {void}
+ */
 Enemy.prototype.update = function (dt) {
     this.x += this.speed * dt; // this.x = this.x + ds where ds (distance travelled during dt) = speed * dt.
 
@@ -491,12 +829,26 @@ Enemy.prototype.update = function (dt) {
 };
 
 
-// Player class. Extends Character.
+/**
+ * Player class.
+ * Represents the player in the game.
+ * @param {Game} The game the player belongs to.
+ * @param {number} x The initial x position of the player.
+ * @param {number} y The initial y position of the player.
+ * @constructor
+ * @extends {Character}
+ */
 var Player = function (game, x, y) {
     Character.call(this, game, x, y);
     this.sprite = 'images/char-boy.png';
 
-    // Hooks to define what happens when the player gains a specific item.
+    /**
+     * Object mapping objects of type {@code Item}
+     * to functions of type {@code function(Game): void}
+     * When the player gains an item, the corresponding
+     * function will be called.
+     * @dict
+     */
     this.gainCallbacks = { };
 
     this.indestructible = false;
@@ -505,20 +857,33 @@ var Player = function (game, x, y) {
 Player.prototype = Object.create(Character.prototype);
 Player.prototype.constructor = Player;
 
-// At each frame, check if the player has cleared the level.
-// If yes, go to next level.
+/**
+ * Checks if the player has cleared the level at each frame.
+ * If yes, starts the game at the next level.
+ * @return {void}
+ */
 Player.prototype.update = function () {
     if (this.game.isLevelCleared()) {
         this.game.levelUp();
     }
 };
 
-// Defines a callback function to be called when the
-// player gains an item.
+/**
+ * Defines a callback function to call when the player
+ * gains an item.
+ * @param {Item} item The item gained by the player.
+ * @param {function(Game): void} callback The function to call.
+ * @return {void}
+ */
 Player.prototype.onGain = function (item, callback) {
     this.gainCallbacks[item] = callback;
 };
 
+/**
+ * Handles keyboard events.
+ * @param {string} key The pressed key id.
+ * @return {void}
+ */
 Player.prototype.handleInput = function (key) {
     switch (key) {
         case 'left':
@@ -561,6 +926,12 @@ Player.prototype.handleInput = function (key) {
 
 };
 
+/**
+ * Moves the player to a new position.
+ * @param {number} x The new x position.
+ * @param {number} y The new y position.
+ * @return {void}
+ */
 Player.prototype.moveTo = function (x, y) {
     if (this.game.paused) {
         return;
@@ -570,35 +941,68 @@ Player.prototype.moveTo = function (x, y) {
     this.y = y;
 
     var item = this.game.board.getItem(this.y, this.x);
+
+    // If there is an item at the new position
     if (item != Item.None) {
         if (this.gainCallbacks.hasOwnProperty(item)) {
+
+            // Call its associated callback.
             this.gainCallbacks[item](this.game);
         }
 
+        // Remove the item of the board.
         this.game.board.removeItem(y, x);
     }
 };
 
 
-// CharacterSelector class.
-// As its name implies, its purpose is to
-// select a character in an array of characters.
-// It is used to select a player at the beginning 
-// of the game.
+/**
+ * CharacterSelector class.
+ * Used to select a character.
+ * @constructor
+ */
 var CharacterSelector = function () {
-    this.characters = null; // The characters between which one should be selected.
-    this.position = 0; // The current position of the selector.
+    /**
+     * List of characters between which one should be selected.
+     * @type {Array.<object>}
+     */
+    this.characters = null;
+
+    /**
+     * The current position of the selector.
+     * @type {number}
+     */
+    this.position = 0;
+
+    /**
+     * Whether the selector has focus, then should be
+     * rendered on the screen or not.
+     * @type {boolean}
+     */
     this.hasFocus = false;
 
-    // A callback to call when a character has been selected.
-    // It gets passed the selected character as parameter.
+    /**
+     * Function to call when a character has been selected.
+     * Takes 1 parameter (the selected character).
+     * @type {function(object): void}
+     */
     this.characterSelectedCallback = function (character) { };
 };
 
+/**
+ * Defines the function to call on a character has been selected.
+ * @param {function(object): void} callback The function to call.
+ * @return {void}
+ */
 CharacterSelector.prototype.onCharacterSelected = function (callback) {
     this.characterSelectedCallback = callback;
 };
 
+/**
+ * Handles keyboard key pressed events
+ * @param {string} key The pressed key id.
+ * @return {void}
+ */
 CharacterSelector.prototype.handleInput = function (key) {
     switch (key) {
         case 'left':
