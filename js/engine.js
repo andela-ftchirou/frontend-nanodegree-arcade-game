@@ -113,7 +113,6 @@ var Engine = (function(global) {
         ctx.drawImage(Resources.get(selectorImage), game.characterSelector.position * 101, 0);
 
         for (var i = 0; i < characters.length; ++i) {
-            var r = Resources.get(characters[i].sprite);
             ctx.drawImage(Resources.get(characters[i].sprite), i * 101, 0);
         }
     }
@@ -129,9 +128,10 @@ var Engine = (function(global) {
     }
 
     // Initialize the game and setup
-    // callbacks to call when important actions
-    // happens in the game (mainly clearing, updating the canvas
-    // and updating the screen with useful informations).
+    // callbacks to call when important events
+    // occur in the game (callbacks to mainly clear,
+    // update the canvas and update the screen
+    // with useful informations).
     function initializeGame(game) {
         initializeCharacterSelector(game);
 
