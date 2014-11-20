@@ -292,9 +292,9 @@ Game.prototype.helpPlayer = function () {
  *      <li>rows (integer) : the number of rows of the board.</li>
  *      <li>roads (integer list) : the row indexes on which enemies can be spawned.</li>
  *      <li>blocks (string of length columns x rows) : the map of the board. The valid characters
- *          of this string are the properties of the {@code Block} object.</li>
+ *          of this string are the values of the {@code Block} enumeration.</li>
  *      <li>items (string of length columns x rows) : the map of the initial items on the board. The
- *          valid characters of this string are the properties of the {@code Item} object.</li>
+ *          valid characters of this string are the values of the {@code Item} enumeration.</li>
  * </ul>
  * @return {void}
  */
