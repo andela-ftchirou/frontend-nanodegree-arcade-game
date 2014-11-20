@@ -470,18 +470,21 @@ Game.prototype.initializeGameCallbacks = function () {
 
     /**
      * Function to call just after the game is paused.
+     * Takes 1 argument (the current game).
      * @type {function(Game): void}
      */
     this.gamePausedCallback = function (game) { };
 
     /**
      * Function to call just after the game resumes.
+     * Takes 1 argument (the current game).
      * @type {function(Game): void}
      */
     this.gameResumedCallback = function (game) { };
 };
 
 /**
+ * @param {function(Game): void} callback.
  * @return {void}
  */
 Game.prototype.onLifeLost = function (callback) {
@@ -489,6 +492,7 @@ Game.prototype.onLifeLost = function (callback) {
 };
 
 /**
+ * @param {function(Game): void} callback.
  * @return {void}
  */
 Game.prototype.onLifeGained = function (callback) {
@@ -496,6 +500,7 @@ Game.prototype.onLifeGained = function (callback) {
 };
 
 /**
+ * @param {function(Game): void} callback.
  * @return {void}
  */
 Game.prototype.onLevelCleared = function (callback) {
@@ -503,6 +508,7 @@ Game.prototype.onLevelCleared = function (callback) {
 };
 
 /**
+ * @param {function(Game): void} callback.
  * @return {void}
  */
 Game.prototype.onGameOver = function (callback) {
@@ -510,6 +516,7 @@ Game.prototype.onGameOver = function (callback) {
 };
 
 /**
+ * @param {function(Game): void} callback.
  * @return {void}
  */
 Game.prototype.onGameRestart = function (callback) {
@@ -517,6 +524,7 @@ Game.prototype.onGameRestart = function (callback) {
 };
 
 /**
+ * @param {function(Game): void} callback.
  * @return {void}
  */
 Game.prototype.onGameCompleted = function (callback) {
@@ -524,6 +532,7 @@ Game.prototype.onGameCompleted = function (callback) {
 };
 
 /**
+ * @param {function(Game): void} callback.
  * @return {void}
  */
 Game.prototype.onGamePaused = function (callback) {
@@ -531,6 +540,7 @@ Game.prototype.onGamePaused = function (callback) {
 };
 
 /**
+ * @param {function(Game): void} callback.
  * @return {void}
  */
 Game.prototype.onGameResumed = function (callback) {
@@ -573,7 +583,6 @@ Game.prototype.randomInt = function (min, max) {
 /**
  * Block types which compose the board.
  * @enum {string}
- * @dict
  */
 var Block = {
     Water: 'W',
@@ -584,7 +593,6 @@ var Block = {
 /**
  * Kinds of items which can be available on the board.
  * @enum {string}
- * @dict
  */
 var Item = {
     BlueGem: 'b',
@@ -605,7 +613,7 @@ var Item = {
  * @constructor
  */
 var Board = function (level) {
-    // Array of strings containing the different parts of the boards.
+    // Array of strings containing the different parts of the board.
     // data[0] = number of columns.
     // data[1] = number of rows.
     // data[2] = list of roads.
@@ -631,8 +639,11 @@ var Board = function (level) {
      */
     this.roads = [];
 
+    // An array of string, each string is a row index.
     var roadsData = data[2].split(',');
     for (var i = 0; i < roadsData.length; ++i) {
+        // Convert each roadsData element to int and
+        // append it to {@code this.roads}
         this.roads.push(parseInt(roadsData[i]));
     }
 
@@ -841,7 +852,7 @@ var Player = function (game, x, y) {
     this.sprite = 'images/char-boy.png';
 
     /**
-     * Object mapping objects of type {@code Item}
+     * Object mapping keys of type {@code Item}
      * to functions of type {@code function(Game): void}
      * When the player gains an item, the corresponding
      * function will be called.
