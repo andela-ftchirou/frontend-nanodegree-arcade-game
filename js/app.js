@@ -122,7 +122,7 @@ var Game = function () {
 };
 
 /**
- * Increments the current level of the game. If
+ * Increments the current level index of the game. If
  * the level was the last level of the game, calls
  * {@code this.gameCompletedCallback(this)}, if not
  * updates @code {Game} properties to match the
