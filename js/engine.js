@@ -14,6 +14,10 @@ var Engine = (function(global) {
     canvas.height = 606;
     doc.getElementById('game-area').appendChild(canvas);
 
+    /**
+     * Sets up the game loop.
+     * @return {void}
+     */
     function main() {
         var now = Date.now(),
             dt = (now - lastTime) / 1000.0;
@@ -28,6 +32,10 @@ var Engine = (function(global) {
         }
     };
 
+    /**
+     * Starts the game and enters the game loop.
+     * @return {void}
+     */
     function init() {
 
         restart();
@@ -35,11 +43,21 @@ var Engine = (function(global) {
         main();
     }
 
+    /**
+     * Updates the game at each frame.
+     * @param {number} dt The elapsed time since the last update.
+     * @return {void}
+     */
     function update(dt) {
         updateEntities(dt);
         checkCollisions();
     }
 
+    /**
+     * Updates the position of the entities at each frame.
+     * @param {number} The elapsed time since the last update.
+     * @return {void}
+     */
     function updateEntities(dt) {
         game.enemies.forEach(function (enemy) {
             enemy.update(dt);
@@ -48,6 +66,10 @@ var Engine = (function(global) {
         game.player.update();
     }
 
+    /**
+     * Dislays the entire game on the screen.
+     * @return {void}
+     */
     function render() {
         if (game.characterSelector.hasFocus) {
             renderCharacterSelector();
@@ -56,6 +78,11 @@ var Engine = (function(global) {
         }
     }
 
+    /**
+     * Displays the game board's blocks, items, the player
+     * and the enemies on the screen.
+     * @return {void}
+     */
     function renderGame() {
         var Images = { };
 
@@ -91,6 +118,10 @@ var Engine = (function(global) {
         renderEntities();
     }
 
+    /**
+     * Displays the player and enemies on the screen.
+     * @return {void}
+     */
     function renderEntities() {
         game.enemies.forEach(function (enemy) {
             enemy.render();
@@ -99,8 +130,14 @@ var Engine = (function(global) {
         game.player.render();
     }
 
+    /**
+     * Displays the character selector on the screen.
+     * @return {void}
+     */
     function renderCharacterSelector() {
+        // The hub should not be visible when the character selector is visible.
         $('#hub').css('visibility', 'hidden');
+
         $('#char-selector-header').css('display', 'block');
 
         var selectorImage = 'images/selector.png';
@@ -117,21 +154,30 @@ var Engine = (function(global) {
         }
     }
 
+    /**
+     * Checks if the player was hit or is on a water block.
+     * @return {void}
+     */
     function checkCollisions() {
         if (game.wasPlayerHit() || game.isPlayerDrowning()) {
             game.reset();
         }
     }
 
+    /**
+     * Restarts the game at the first level.
+     * @return {void}
+     */
     function restart() {
         game.restart();
     }
 
-    // Initialize the game and setup
-    // callbacks to call when important events
-    // occur in the game (callbacks to mainly clear,
-    // update the canvas and update the screen
-    // with useful informations).
+
+    /**
+     * Initializes the game and setup in-game events
+     * handlers.
+     * @return {void}
+     */
     function initializeGame(game) {
         initializeCharacterSelector(game);
 
@@ -199,6 +245,12 @@ var Engine = (function(global) {
         });
     }
 
+    /**
+     * Sets up the playable characters of the game
+     * and initializes the character selector.
+     * @param {Game} game The current game.
+     * @return {void}
+     */
     function initializeCharacterSelector(game) {
         var characters = [
             {name: 'boy', sprite: 'images/char-boy.png'},
@@ -222,6 +274,10 @@ var Engine = (function(global) {
         });
     }
 
+    /**
+     * Erases everything on the canvas.
+     * @return {void}
+     */
     function clearCanvas() {
         canvas.width = game.board.width * 101;
         canvas.height = game.board.height * 101 + 101;
