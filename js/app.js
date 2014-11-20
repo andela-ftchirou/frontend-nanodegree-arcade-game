@@ -851,6 +851,11 @@ var Player = function (game, x, y) {
      */
     this.gainCallbacks = { };
 
+    /**
+     * If this is true, the player does not undergo any
+     * damage by enemies and can not drown.
+     * @type {boolean}
+     */
     this.indestructible = false;
 };
 
