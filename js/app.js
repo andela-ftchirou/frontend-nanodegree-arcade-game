@@ -13,12 +13,14 @@ var Game = function () {
     /**
      * Current level of the game.
      * The first level is 0.
+     * It is initialized at -1 because the game has not yet started.
      * @type {number}
      */
     this.level = -1;
 
     /**
      * All the levels of the game.
+     * The levels have not yet been created.
      * @type {Array.<string>}
      */
     this.levels = [];
@@ -31,6 +33,8 @@ var Game = function () {
 
     /**
      * Enemies of the game.
+     * The game has not yet started, then
+     * there is no enemy (the array {@code this.ememies} is empty).
      * @type {Array.<Enemy>}
      */
     this.enemies = [];
@@ -61,6 +65,9 @@ var Game = function () {
 
     /**
      * Current game board.
+     * The game must be started at a level
+     * before {@code this.board} be initialized
+     * to the appropriate board.
      * @type {Board}
      */
     this.board = null;
@@ -91,7 +98,7 @@ var Game = function () {
     this.initializeGameCallbacks();
 
     // {@code this.levelUp()} is called to start the game.
-    // from level -1 to level 0.
+    // (from level -1 to level 0).
     this.levelUp();
 
     var that = this;
