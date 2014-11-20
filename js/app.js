@@ -78,7 +78,7 @@ var Game = function () {
      */
     this.characterSelector = new CharacterSelector();
 
-    // At the beginning, the character selection has the focus
+    // At the beginning, the character selector has the focus
     // to allow player selection.
     this.characterSelector.hasFocus = true;
     
@@ -88,7 +88,8 @@ var Game = function () {
      */
     this.paused = false;
 
-    // Initializes {@code this.levels}
+    // Initializes {@code this.levels}.
+    // (Creates the levels of the game)
     this.initializeLevels();
 
     // Initializes {@code this.player}
@@ -97,8 +98,7 @@ var Game = function () {
     // Initializes in-game events handlers.
     this.initializeGameCallbacks();
 
-    // {@code this.levelUp()} is called to start the game.
-    // (from level -1 to level 0).
+    // Starts the game at level 0.
     this.levelUp();
 
     var that = this;
