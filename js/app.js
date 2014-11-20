@@ -36,6 +36,18 @@ var Game = function () {
     this.enemies = [];
 
     /**
+     * Minimum enemy speed.
+     * @type {number}
+     */
+    this.minEnemySpeed = 1;
+
+    /**
+     * Maximum enemy speed.
+     * @type {number}
+     */
+    this.maxEnemySpeed = 5;
+
+    /**
      * Maximum number of player's lives.
      * @type {number}
      */
@@ -73,10 +85,7 @@ var Game = function () {
     this.initializeLevels();
 
     // Initializes {@code this.player}
-    this.initializePlayer();    
-
-    // Initializes {@code this.enemies}
-    this.initializeEnemies();
+    this.initializePlayer();
 
     // Initializes in-game events handlers.
     this.initializeGameCallbacks();
@@ -402,24 +411,6 @@ Game.prototype.initializePlayer = function () {
     this.player.onGain(Item.OrangeGem, function (game) {
         // Nothing for now.
     });
-};
-
-/**
- * Initializes the default range of speed ([1, 4]) of the enemies.
- * @return {void}
- */
-Game.prototype.initializeEnemies = function () {
-    /**
-     * Minimum enemy speed.
-     * @type {number}
-     */
-    this.minEnemySpeed = 1;
-
-    /**
-     * Maximum enemy speed.
-     * @type {number}
-     */
-    this.maxEnemySpeed = 4;
 };
 
 /**
