@@ -124,7 +124,7 @@ var Game = function () {
 /**
  * Increments the current level index of the game. If
  * the level was the last level of the game, calls
- * {@code this.gameCompletedCallback(this)}, if not
+ * {@code this.gameCompletedCallback(this)}, if not,
  * updates @code {Game} properties to match the
  * new current level.
  * @return {void}
@@ -183,7 +183,7 @@ Game.prototype.levelUp = function () {
         }
 
         // The previous level was cleared. Handles this event
-        // by calling this function.
+        // by calling the following function.
         this.levelClearedCallback(this.level);
     }
 };
@@ -196,6 +196,9 @@ Game.prototype.wasPlayerHit = function () {
         return false;
     }
 
+    // Iterates through {@code this.enemies} and checks
+    // if one of the enemies is sufficiently close to the
+    // player to consider that it hits him.
     for (var i = 0; i < this.numEnemies; ++i) {
         var enemy = this.enemies[i];
 
