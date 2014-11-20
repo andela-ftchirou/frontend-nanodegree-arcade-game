@@ -10,8 +10,8 @@
  */
 var Game = function () {
     /**
-     * Current level of the game.
-     * The first level is 0.
+     * Current level index of the game.
+     * The first level index is 0.
      * It is initialized at -1 because the game has not yet started.
      * @type {number}
      */
@@ -130,37 +130,60 @@ var Game = function () {
  * @return {void}
  */
 Game.prototype.levelUp = function () {
+    // Goes to the next level.
     this.level++;
 
+    // There is no remaining level.
     if (this.level === this.levels.length) {
+        // All the levels have been cleared. Handles this
+        // event by calling the following function.
         this.gameCompletedCallback(this);
 
         return;
     }
 
+    // There are still some more levels to play.
     if (this.level < this.levels.length) {
         // For each level cleared, improve the chances of the enemies
         // to run faster.
         this.minEnemySpeed += 1;
         this.maxEnemySpeed += 1;
 
+        // "Delete" the previous board.
         this.board = null;
+        
+        // Retrieves the current level {@code this.levels[this.level]} 
+        // and uses it to construct the new board.
         this.board = new Board(this.levels[this.level]);
 
+        // Resets the number of lives.
         this.lives = this.maxLives;
+        
+        // The player has gained {@code this.maxLives}.
+        // Calls the function to execute in that case.
         this.lifeGainedCallback(this.lives);
 
+        // Put the player on the screen.
         this.spawnPlayer();
 
+        // "Delete" all the previous enemies.
         this.enemies = [];
+        
+        // The number of enemies equals the number
+        // of "free roads" of the board.
         this.numEnemies = this.board.roads.length;
         for (var i = 0; i < this.numEnemies; ++i) {
+            // Put an enemy on a free road of the board.
             var enemy = new Enemy(this, -1, this.board.roads[i]);
+            
+            // Assigns a random speed to each enemy.
             enemy.speed = this.randomInt(this.minEnemySpeed, this.maxEnemySpeed);
 
             this.enemies.push(enemy);
         }
 
+        // The previous level was cleared. Handles this event
+        // by calling this function.
         this.levelClearedCallback(this.level);
     }
 };
