@@ -1,6 +1,5 @@
 /**
  * @fileoverview Classes for handling the game logic.
- *
  * @author ftchirou@gmail.com (Faiçal Tchirou)
  */
 
@@ -482,6 +481,10 @@ Game.prototype.initializeGameCallbacks = function () {
      */
     this.gameResumedCallback = function (game) { };
 };
+
+// The following Game.prototype.onXXXX functions are
+// convenience functions to assign a function to
+// the in-game events handlers.
 
 /**
  * @param {function(Game): void} callback.
