@@ -3,7 +3,7 @@ frontend-nanodegree-arcade-game
 
 Frogger game clone (much simpler) made for Udacity's Front-End Web Developer Nanodegree https://www.udacity.com/course/nd001.
 
-There is a playable version of the game at <a href="http://andela-ftchirou.github.io/frontend-nanodegree-arcade-game/" target="_blank">http://andela-ftchirou.github.io/frontend-nanodegree-arcade-game/</a>
+There is a playable version of the game at <a href="https://ftchirou.github.io/arcade-game/" target="_blank">https://ftchirou.github.io/arcade-game/</a>
 
 ## How to run
 There is nothing special to do in order to run the game. Just open index.html in your favorite browser.
